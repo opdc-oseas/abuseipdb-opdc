@@ -27,7 +27,7 @@ export function exportToCSV(data: IpResult[], selectedIp: string): void {
 
   for (const row of data) {
     const values = keys.map(key => {
-      let value: unknown = (row as Record<string, unknown>)[key];
+      let value: unknown = (row as unknown as Record<string, unknown>)[key];
 
       if (key === 'reported') {
         value = value ? 'SIM' : 'NAO';
