@@ -43,12 +43,13 @@ export function exportToCSV(data: IpResult[], selectedIp: string): void {
       }
 
       if (typeof value === 'string') {
-        value = value.replace(/"/g, '""');
-        if (value.includes(',') || value.includes('\n') || value.includes('"')) {
-          return `"${value}"`;
+        const escaped = value.replace(/"/g, '""');
+        if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
+          return `"${escaped}"`;
         }
+        return escaped;
       }
-      return value ?? '';
+      return String(value ?? '');
     });
     csvRows.push(values.join(','));
   }
