@@ -15,7 +15,7 @@ interface ScanStats {
 export default function AbuseIPDBScanner() {
   const [selectedIp, setSelectedIp] = useState('');
   const [isScanning, setIsScanning] = useState(false);
-  const [statusMessage, setStatusMessage] = useState(STATUS_MESSAGES.READY);
+  const [statusMessage, setStatusMessage] = useState<string>(STATUS_MESSAGES.READY);
   const [progress, setProgress] = useState(0);
   const [credits, setCredits] = useState<number | null>(null);
   const [creditsLoading, setCreditsLoading] = useState(false);
