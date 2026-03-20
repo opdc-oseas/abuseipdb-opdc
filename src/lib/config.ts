@@ -1,7 +1,7 @@
 // AbuseIPDB Scanner Configuration
 
 export const CONFIG = {
-  WORKER_URL: 'https://abuseipdb-proxy.oseasfr.workers.dev',
+  WORKER_URL: 'https://abuseipdb-opdc-proxy.subscriptions-ec7.workers.dev/',
   DAILY_LIMIT: 1000,
   BATCH_SIZE: 10,
   BATCH_DELAY: 1000,
