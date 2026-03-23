@@ -6,28 +6,28 @@
 
 @layer base {
   :root {
-    --background: 216 40% 7%;
-    --foreground: 210 20% 92%;
+    --background: 220 35% 8%;
+    --foreground: 210 20% 94%;
 
-    --card: 215 35% 10%;
-    --card-foreground: 210 20% 92%;
+    --card: 220 31% 11%;
+    --card-foreground: 210 20% 94%;
 
-    --popover: 215 35% 10%;
-    --popover-foreground: 210 20% 92%;
+    --popover: 220 31% 11%;
+    --popover-foreground: 210 20% 94%;
 
-    --primary: 211 96% 55%;
+    --primary: 211 96% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 25% 16%;
-    --secondary-foreground: 210 20% 85%;
+    --secondary: 218 24% 16%;
+    --secondary-foreground: 210 20% 88%;
 
-    --muted: 215 20% 14%;
-    --muted-foreground: 215 15% 55%;
+    --muted: 218 22% 13%;
+    --muted-foreground: 215 15% 62%;
 
-    --accent: 211 96% 55%;
+    --accent: 211 96% 56%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 56%;
     --destructive-foreground: 0 0% 100%;
 
     --success: 142 71% 45%;
@@ -36,20 +36,20 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 215 20% 18%;
-    --input: 215 20% 18%;
-    --ring: 211 96% 55%;
+    --border: 218 20% 20%;
+    --input: 218 20% 20%;
+    --ring: 211 96% 56%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    --sidebar-background: 216 40% 7%;
-    --sidebar-foreground: 210 20% 92%;
-    --sidebar-primary: 211 96% 55%;
+    --sidebar-background: 220 35% 8%;
+    --sidebar-foreground: 210 20% 94%;
+    --sidebar-primary: 211 96% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 25% 16%;
-    --sidebar-accent-foreground: 210 20% 85%;
-    --sidebar-border: 215 20% 18%;
-    --sidebar-ring: 211 96% 55%;
+    --sidebar-accent: 218 24% 16%;
+    --sidebar-accent-foreground: 210 20% 88%;
+    --sidebar-border: 218 20% 20%;
+    --sidebar-ring: 211 96% 56%;
   }
 }
 
@@ -58,9 +58,22 @@
     @apply border-border;
   }
 
+  html {
+    color-scheme: dark;
+  }
+
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply min-h-screen bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
+    background-image:
+      radial-gradient(circle at top left, hsl(211 96% 56% / 0.18), transparent 28%),
+      radial-gradient(circle at top right, hsl(196 100% 50% / 0.08), transparent 22%),
+      linear-gradient(180deg, hsl(220 35% 8%), hsl(220 30% 6%));
+    background-attachment: fixed;
+  }
+
+  #root {
+    min-height: 100vh;
   }
 
   code, .font-mono {
@@ -70,14 +83,26 @@
 
 @layer utilities {
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl shadow-lg;
+    @apply rounded-2xl border border-white/10 bg-card/85 backdrop-blur-xl shadow-[0_24px_80px_rgba(3,8,20,0.45)];
   }
 
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(211 96% 55% / 0.15), 0 0 40px hsl(211 96% 55% / 0.05);
+  .panel-card {
+    @apply rounded-[1.25rem] border border-white/10 bg-[#0f1728]/90 shadow-[0_18px_70px_rgba(2,6,23,0.55)] backdrop-blur-xl;
+  }
+
+  .panel-muted {
+    @apply rounded-2xl border border-white/8 bg-white/[0.03];
+  }
+
+  .dashboard-badge {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-muted-foreground;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400;
+    @apply bg-gradient-to-r from-white via-slate-100 to-blue-300 bg-clip-text text-transparent;
+  }
+
+  .table-row-hover {
+    @apply transition-colors hover:bg-white/[0.03];
   }
 }
