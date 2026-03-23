@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.npmrc
+.env
+.env.*
+!.env.example
+!.npmrc.example
