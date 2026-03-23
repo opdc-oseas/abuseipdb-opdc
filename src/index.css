@@ -91,7 +91,7 @@
   }
 
   .panel-muted {
-    @apply rounded-2xl border border-white/8 bg-white/[0.03];
+    @apply rounded-2xl border border-white/10 bg-white/[0.03];
   }
 
   .dashboard-badge {
