@@ -17,7 +17,6 @@ import {
   LogOut,
   Activity,
   ShieldCheck,
-  BadgeCheck,
   Search,
 } from 'lucide-react';
 
@@ -254,6 +253,72 @@ export default function AbuseIPDBScanner() {
     try { return new URL(url).hostname; } catch { return 'Ver Site'; }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md panel-card p-8 sm:p-10">
+          <div className="flex items-center justify-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+              <Lock className="h-7 w-7" />
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <div className="flex items-center justify-center gap-2 text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
+              <Cloud className="h-4 w-4 text-primary" />
+              Open Datacenter
+            </div>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-gradient">Acesso ao painel</h1>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              Faça login para liberar as consultas do AbuseIPDB e visualizar os recursos do painel.
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="mt-8 space-y-4">
+            <div>
+              <label htmlFor="identifier" className="mb-2 block text-sm text-muted-foreground">
+                Usuário ou e-mail
+              </label>
+              <input
+                id="identifier"
+                value={identifier}
+                onChange={(event) => setIdentifier(event.target.value)}
+                autoComplete="username"
+                className="h-12 w-full rounded-2xl border border-white/10 bg-black/10 px-4 text-foreground outline-none transition focus:border-primary"
+                placeholder="Digite seu usuário"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="mb-2 block text-sm text-muted-foreground">
+                Senha
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
+                className="h-12 w-full rounded-2xl border border-white/10 bg-black/10 px-4 text-foreground outline-none transition focus:border-primary"
+                placeholder="Digite sua senha"
+              />
+            </div>
+
+            {authError && <p className="text-sm text-destructive">{authError}</p>}
+
+            <button
+              type="submit"
+              disabled={authSubmitting || isLoading}
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+            >
+              {(authSubmitting || isLoading) && <Loader2 className="h-4 w-4 animate-spin" />}
+              Entrar no painel
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       {isScanning && (
@@ -308,109 +373,42 @@ export default function AbuseIPDBScanner() {
             </div>
 
             <div className="w-full xl:max-w-md">
-              {isAuthenticated ? (
-                <div className="panel-muted p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <span className="dashboard-badge border-emerald-500/20 bg-emerald-500/10 text-emerald-200">
-                        <BadgeCheck className="h-3.5 w-3.5" />
-                        Sessão ativa
-                      </span>
-                      <p className="mt-4 text-sm text-muted-foreground">Usuário autenticado</p>
-                      <p className="mt-1 text-xl font-semibold text-foreground">{displayName}</p>
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-foreground transition hover:bg-white/[0.08]"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Sair
-                    </button>
+              <div className="panel-muted p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <span className="dashboard-badge border-emerald-500/20 bg-emerald-500/10 text-emerald-200">
+                      <Shield className="h-3.5 w-3.5" />
+                      Sessão ativa
+                    </span>
+                    <p className="mt-4 text-sm text-muted-foreground">Usuário autenticado</p>
+                    <p className="mt-1 text-xl font-semibold text-foreground">{displayName}</p>
                   </div>
+                  <button
+                    onClick={handleLogout}
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-foreground transition hover:bg-white/[0.08]"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sair
+                  </button>
+                </div>
 
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                      <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Créditos</p>
-                      <p className="mt-2 text-2xl font-semibold text-foreground">{creditsLoading ? '...' : credits ?? '--'}</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                      <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Status</p>
-                      <p className="mt-2 text-sm font-medium text-foreground">Painel liberado</p>
-                    </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+                    <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Créditos</p>
+                    <p className="mt-2 text-2xl font-semibold text-foreground">{creditsLoading ? '...' : credits ?? '--'}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+                    <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Status</p>
+                    <p className="mt-2 text-sm font-medium text-foreground">Painel liberado</p>
                   </div>
                 </div>
-              ) : (
-                <form onSubmit={handleLogin} className="panel-muted p-5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-                      <Lock className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Entrar no painel</p>
-                      <p className="text-sm text-muted-foreground">Use sua credencial para desbloquear a consulta.</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 space-y-4">
-                    <div>
-                      <label htmlFor="identifier" className="mb-2 block text-sm text-muted-foreground">
-                        Usuário ou e-mail
-                      </label>
-                      <input
-                        id="identifier"
-                        value={identifier}
-                        onChange={(event) => setIdentifier(event.target.value)}
-                        autoComplete="username"
-                        className="h-12 w-full rounded-2xl border border-white/10 bg-black/10 px-4 text-foreground outline-none transition focus:border-primary"
-                        placeholder="Digite seu usuário"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="password" className="mb-2 block text-sm text-muted-foreground">
-                        Senha
-                      </label>
-                      <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        autoComplete="current-password"
-                        className="h-12 w-full rounded-2xl border border-white/10 bg-black/10 px-4 text-foreground outline-none transition focus:border-primary"
-                        placeholder="Digite sua senha"
-                      />
-                    </div>
-                    {authError && <p className="text-sm text-destructive">{authError}</p>}
-                    <button
-                      type="submit"
-                      disabled={authSubmitting || isLoading}
-                      className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
-                    >
-                      {(authSubmitting || isLoading) && <Loader2 className="h-4 w-4 animate-spin" />}
-                      Entrar no painel
-                    </button>
-                  </div>
-                </form>
-              )}
+              </div>
             </div>
           </div>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-          <div className={`panel-card relative overflow-hidden p-6 lg:p-7 ${!isAuthenticated ? 'pointer-events-none select-none opacity-45' : ''}`}>
-            {!isAuthenticated && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#08101d]/70 backdrop-blur-sm">
-                <div className="max-w-md rounded-3xl border border-white/10 bg-[#0b1423]/95 p-6 text-center shadow-2xl">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-                    <Lock className="h-6 w-6" />
-                  </div>
-                  <h2 className="mt-4 text-xl font-semibold text-foreground">Painel bloqueado</h2>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Faça login na lateral para liberar a configuração da consulta, visualizar créditos e iniciar novas verificações.
-                  </p>
-                </div>
-              </div>
-            )}
-
+          <div className="panel-card relative overflow-hidden p-6 lg:p-7">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
