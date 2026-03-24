@@ -1,66 +1,78 @@
-import { IpResult } from './api';
-import { formatIpForFilename } from './network-utils';
+// IP and Network Utilities
 
-export function exportToCSV(data: IpResult[], selectedIp: string): void {
-  if (!data || !data.length) return;
+export function isValidIp(ip: string): boolean {
+  if (typeof ip !== 'string') return false;
+  const octets = ip.split('.');
+  if (octets.length !== 4) return false;
+  return octets.every(octet => {
+    const num = parseInt(octet, 10);
+    return !isNaN(num) && num >= 0 && num <= 255 && octet === num.toString();
+  });
+}
 
-  const filename = `abuseipdb_report_${formatIpForFilename(selectedIp)}.csv`;
+export function ipToNumber(ip: string): number {
+  return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+}
 
-  const csvHeaderMap: Record<string, string> = {
-    ip: 'IP',
-    reported: 'Status',
-    countryCode: 'Localidade',
-    domain: 'Dominio',
-    asn: 'ASN',
-    organizationWebsite: 'Website Organizacao',
-    mxtoolboxLink: 'MXToolbox Link',
-    generalBGPLink: 'BGP/Detalhes Link',
-    message: 'Mensagem/Erro',
-  };
+export function numberToIp(num: number): string {
+  return [
+    (num >>> 24) & 0xFF,
+    (num >>> 16) & 0xFF,
+    (num >>> 8) & 0xFF,
+    num & 0xFF,
+  ].join('.');
+}
 
-  const keys = Object.keys(csvHeaderMap).filter(
-    key => data[0].hasOwnProperty(key) || ['ip', 'reported'].includes(key)
-  );
-  const headers = keys.map(key => csvHeaderMap[key]);
+export function incrementIp(baseIp: string, increment: number): string {
+  const num = ipToNumber(baseIp);
+  return numberToIp((num + increment) >>> 0);
+}
 
-  const csvRows: string[] = [headers.join(',')];
+export interface CIDRInfo {
+  cidr: string;
+  networkAddress: string;
+  broadcastAddress: string;
+  subnetMask: string;
+  prefix: number;
+  totalIps: number;
+  firstUsable: string;
+  lastUsable: string;
+}
 
-  for (const row of data) {
-    const values = keys.map(key => {
-      let value: unknown = (row as unknown as Record<string, unknown>)[key];
+export function parseCIDR(cidr: string): CIDRInfo | null {
+  try {
+    const cidrPattern = /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
+    if (!cidrPattern.test(cidr)) throw new Error('Formato CIDR inválido');
 
-      if (key === 'reported') {
-        value = value ? 'SIM' : 'NAO';
-      } else if (key === 'asn') {
-        value = typeof value === 'object' && value !== null
-          ? ((value as Record<string, unknown>).asn || (value as Record<string, unknown>).organization || '')
-          : value;
-      } else if (key === 'organizationWebsite' && value) {
-        try {
-          const url = new URL(value as string);
-          value = url.hostname;
-        } catch { /* keep original */ }
-      }
+    const [ipAddress, prefixStr] = cidr.split('/');
+    const prefix = parseInt(prefixStr, 10);
 
-      if (typeof value === 'string') {
-        const escaped = value.replace(/"/g, '""');
-        if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
-          return `"${escaped}"`;
-        }
-        return escaped;
-      }
-      return String(value ?? '');
-    });
-    csvRows.push(values.join(','));
+    if (prefix < 0 || prefix > 32) throw new Error('Prefixo CIDR deve estar entre 0 e 32');
+    if (!isValidIp(ipAddress)) throw new Error('Endereço IP inválido');
+
+    const ipNum = ipToNumber(ipAddress);
+    const mask = prefix === 0 ? 0 : (~0 >>> (32 - prefix)) << (32 - prefix);
+    const networkNum = (ipNum & mask) >>> 0;
+    const broadcastNum = (networkNum | (~mask & 0xFFFFFFFF)) >>> 0;
+    const totalIps = Math.pow(2, 32 - prefix);
+
+    return {
+      cidr,
+      networkAddress: numberToIp(networkNum),
+      broadcastAddress: numberToIp(broadcastNum),
+      subnetMask: numberToIp(mask >>> 0),
+      prefix,
+      totalIps,
+      firstUsable: prefix > 30 ? numberToIp(networkNum) : numberToIp(networkNum + 1),
+      lastUsable: prefix > 30 ? numberToIp(broadcastNum) : numberToIp(broadcastNum - 1),
+    };
+  } catch (error) {
+    console.error('Erro ao analisar CIDR:', error);
+    return null;
   }
+}
 
-  const csvString = csvRows.join('\n');
-  const blob = new Blob(['\ufeff', csvString], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
+export function formatIpForFilename(ip: string): string {
+  if (!ip) return 'desconhecido';
+  return ip.replace(/\./g, '-');
 }
