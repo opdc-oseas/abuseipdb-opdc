@@ -36,19 +36,15 @@ export interface AuthCredentials {
 
 async function parseJsonResponse(response: Response): Promise<unknown> {
   const contentType = response.headers.get('content-type') || '';
-  if (!contentType.includes('application/json')) {
-    return null;
-  }
-
+  if (!contentType.includes('application/json')) return null;
   return response.json();
 }
 
 function resolveErrorMessage(data: unknown, fallback: string) {
   if (typeof data === 'object' && data !== null) {
-    if ('error' in data && typeof data.error === 'string') return data.error;
-    if ('message' in data && typeof data.message === 'string') return data.message;
+    if ('error' in data && typeof (data as Record<string, unknown>).error === 'string') return (data as Record<string, unknown>).error as string;
+    if ('message' in data && typeof (data as Record<string, unknown>).message === 'string') return (data as Record<string, unknown>).message as string;
   }
-
   return fallback;
 }
 
@@ -58,11 +54,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function resolveUser(data: unknown): AuthUser | null {
   if (!isRecord(data)) return null;
-
-  if ('user' in data && isRecord(data.user)) {
-    return data.user as AuthUser;
-  }
-
+  if ('user' in data && isRecord(data.user)) return data.user as AuthUser;
   return data as AuthUser;
 }
 
@@ -108,7 +100,6 @@ export async function login(credentials: AuthCredentials): Promise<AuthUser> {
   }
 
   const user = resolveUser(data);
-
   if (!user) {
     throw new Error('Login realizado, mas a sessão não retornou os dados do usuário.');
   }
@@ -118,7 +109,6 @@ export async function login(credentials: AuthCredentials): Promise<AuthUser> {
 
 export async function logout(): Promise<void> {
   const response = await apiFetch('/auth/logout', { method: 'POST' });
-
   if (!response.ok && response.status !== 401) {
     const data = await parseJsonResponse(response);
     throw new Error(resolveErrorMessage(data, 'Falha ao encerrar a sessão.'));
@@ -127,13 +117,9 @@ export async function logout(): Promise<void> {
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const response = await apiFetch('/auth/me', { method: 'GET' });
-
-  if (response.status === 401) {
-    return null;
-  }
+  if (response.status === 401) return null;
 
   const data = await parseJsonResponse(response);
-
   if (!response.ok) {
     throw new Error(resolveErrorMessage(data, 'Falha ao recuperar a sessão atual.'));
   }
