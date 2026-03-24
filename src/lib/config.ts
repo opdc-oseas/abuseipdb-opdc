@@ -1,7 +1,7 @@
 // AbuseIPDB Scanner Configuration
 
 const environment = import.meta.env.VITE_OPDC_ENVIRONMENT || 'production';
-const workerUrl = (import.meta.env.VITE_OPDC_PROXY_URL || 'https://abuseipdb-opdc-proxy.subscriptions-ec7.workers.dev/').replace(/\/$/, '');
+const workerUrl = (import.meta.env.VITE_OPDC_PROXY_URL || 'dc-abuseipdb-worker.subscriptions-ec7.workers.dev/').replace(/\/$/, '');
 
 export const CONFIG = {
   WORKER_URL: workerUrl,
