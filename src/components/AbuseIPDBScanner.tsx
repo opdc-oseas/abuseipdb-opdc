@@ -93,7 +93,7 @@ export default function AbuseIPDBScanner() {
     return result;
   }, []);
 
-  const handleLogin = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+  const handleLogin = useCallback(async (event: FormEvent) => {
     event.preventDefault();
 
     if (!identifier || !password) {
@@ -253,62 +253,61 @@ export default function AbuseIPDBScanner() {
     try { return new URL(url).hostname; } catch { return 'Ver Site'; }
   };
 
+  // ── LOGIN SCREEN ──
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md panel-card p-8 sm:p-10">
-          <div className="flex items-center justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-              <Lock className="h-7 w-7" />
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="glass-card w-full max-w-md p-8">
+          <div className="mb-6 flex flex-col items-center gap-3">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10">
+              <Lock className="h-6 w-6 text-primary" />
             </div>
-          </div>
-
-          <div className="mt-6 text-center">
-            <div className="flex items-center justify-center gap-2 text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
-              <Cloud className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              <Cloud className="h-3.5 w-3.5" />
               Open Datacenter
             </div>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-gradient">Acesso ao painel</h1>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            <h1 className="text-2xl font-bold text-foreground">Acesso ao painel</h1>
+            <p className="text-center text-sm text-muted-foreground">
               Faça login para liberar as consultas do AbuseIPDB e visualizar os recursos do painel.
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="mt-8 space-y-4">
-            <div>
-              <label htmlFor="identifier" className="mb-2 block text-sm text-muted-foreground">
-                Usuário ou e-mail
-              </label>
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="identifier" className="text-sm font-medium text-muted-foreground">Usuário ou e-mail</label>
               <input
                 id="identifier"
+                type="text"
                 value={identifier}
-                onChange={(event) => setIdentifier(event.target.value)}
+                onChange={(e) => setIdentifier(e.target.value)}
                 autoComplete="username"
-                className="h-12 w-full rounded-2xl border border-white/10 bg-black/10 px-4 text-foreground outline-none transition focus:border-primary"
+                className="h-12 w-full rounded-2xl border border-border bg-secondary/30 px-4 text-foreground outline-none transition focus:border-primary"
                 placeholder="Digite seu usuário"
               />
             </div>
-            <div>
-              <label htmlFor="password" className="mb-2 block text-sm text-muted-foreground">
-                Senha
-              </label>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="password" className="text-sm font-medium text-muted-foreground">Senha</label>
               <input
                 id="password"
                 type="password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                className="h-12 w-full rounded-2xl border border-white/10 bg-black/10 px-4 text-foreground outline-none transition focus:border-primary"
+                className="h-12 w-full rounded-2xl border border-border bg-secondary/30 px-4 text-foreground outline-none transition focus:border-primary"
                 placeholder="Digite sua senha"
               />
             </div>
 
-            {authError && <p className="text-sm text-destructive">{authError}</p>}
+            {authError && (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {authError}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={authSubmitting || isLoading}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+              className="mt-2 flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary font-medium text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
             >
               {(authSubmitting || isLoading) && <Loader2 className="h-4 w-4 animate-spin" />}
               Entrar no painel
@@ -319,315 +318,249 @@ export default function AbuseIPDBScanner() {
     );
   }
 
+  // ── DASHBOARD ──
   return (
-    <div className="min-h-screen">
+    <div className="relative mx-auto max-w-7xl space-y-6 p-4 md:p-8">
+      {/* Progress bar */}
       {isScanning && (
-        <div className="fixed left-0 top-0 z-50 h-1 w-full bg-white/5">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-primary via-cyan-400 to-blue-300 transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="fixed left-0 top-0 z-50 h-1 w-full bg-muted">
+          <div className="h-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
       )}
 
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-6 lg:px-6 lg:py-8">
-        <section className="panel-card overflow-hidden p-6 lg:p-8">
-          <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="dashboard-badge border-primary/20 bg-primary/10 text-blue-100">
-                  <Cloud className="h-3.5 w-3.5 text-primary" />
-                  OPEN Datacenter
-                </span>
-                <span className="dashboard-badge">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                  Painel protegido por proxy
-                </span>
-                <span className="dashboard-badge">
-                  <Activity className="h-3.5 w-3.5 text-cyan-300" />
-                  Ambiente {CONFIG.ENVIRONMENT}
-                </span>
-              </div>
+      {/* Header */}
+      <header className="panel-card p-6 md:p-8">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          <Cloud className="h-3.5 w-3.5" />
+          OPEN Datacenter
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          <span className="dashboard-badge">Painel protegido por proxy</span>
+          <span className="dashboard-badge">Ambiente {CONFIG.ENVIRONMENT}</span>
+        </div>
 
-              <h1 className="mt-6 text-4xl font-semibold tracking-tight text-gradient md:text-5xl">
-                AbuseIPDB Control Center
-              </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-                Acesse o painel com sua credencial corporativa para liberar a consulta de blocos /24, verificar créditos no proxy seguro e exportar os resultados operacionais do AS262415.
-              </p>
+        <h1 className="mt-4 text-gradient text-2xl font-bold md:text-3xl">AbuseIPDB Control Center</h1>
+        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+          Acesse o painel com sua credencial corporativa para liberar a consulta de blocos /24, verificar créditos no proxy seguro e exportar os resultados operacionais do AS262415.
+        </p>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Scanner</p>
-                  <p className="mt-2 text-lg font-semibold text-foreground">Consulta em lotes</p>
-                </div>
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Acesso</p>
-                  <p className="mt-2 text-lg font-semibold text-foreground">Sessão autenticada</p>
-                </div>
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Proxy</p>
-                  <p className="mt-2 truncate text-lg font-semibold text-foreground">{CONFIG.WORKER_URL}</p>
-                </div>
-              </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="dashboard-badge"><Search className="h-3 w-3" /> Scanner</span>
+          <span className="dashboard-badge">Consulta em lotes</span>
+          <span className="dashboard-badge"><Shield className="h-3 w-3" /> Acesso</span>
+          <span className="dashboard-badge">Sessão autenticada</span>
+          <span className="dashboard-badge">Proxy</span>
+          <span className="dashboard-badge font-mono text-[10px]">{CONFIG.WORKER_URL}</span>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+              <ShieldCheck className="h-4 w-4 text-primary" />
             </div>
-
-            <div className="w-full xl:max-w-md">
-              <div className="panel-muted p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <span className="dashboard-badge border-emerald-500/20 bg-emerald-500/10 text-emerald-200">
-                      <Shield className="h-3.5 w-3.5" />
-                      Sessão ativa
-                    </span>
-                    <p className="mt-4 text-sm text-muted-foreground">Usuário autenticado</p>
-                    <p className="mt-1 text-xl font-semibold text-foreground">{displayName}</p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-foreground transition hover:bg-white/[0.08]"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sair
-                  </button>
-                </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                    <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Créditos</p>
-                    <p className="mt-2 text-2xl font-semibold text-foreground">{creditsLoading ? '...' : credits ?? '--'}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                    <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Status</p>
-                    <p className="mt-2 text-sm font-medium text-foreground">Painel liberado</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-          <div className="panel-card relative overflow-hidden p-6 lg:p-7">
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Consulta operacional</p>
-                  <h2 className="mt-2 text-2xl font-semibold text-foreground">Configuração da Consulta</h2>
-                </div>
-                <span className="dashboard-badge self-start lg:self-auto">
-                  <Search className="h-3.5 w-3.5 text-cyan-300" />
-                  Scanner /24 autenticado
-                </span>
-              </div>
-
-              <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-                <div className="panel-muted p-4">
-                  <label htmlFor="ipSelect" className="mb-3 block text-sm text-muted-foreground">
-                    Selecione um dos IPs pré-definidos para verificação de bloco /24
-                  </label>
-                  <select
-                    id="ipSelect"
-                    value={selectedIp}
-                    onChange={(e) => setSelectedIp(e.target.value)}
-                    disabled={isScanning || !isAuthenticated}
-                    className="h-12 w-full rounded-2xl border border-white/10 bg-black/10 px-4 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-                  >
-                    <option value="">-- Selecione um IP --</option>
-                    {PREDEFINED_IPS.map(ip => (
-                      <option key={ip} value={ip}>{ip}/24</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-                  <button
-                    onClick={startScan}
-                    disabled={isScanning || !selectedIp || !isAuthenticated}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isScanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-                    Iniciar
-                  </button>
-                  <button
-                    onClick={stopScan}
-                    disabled={!isScanning || !isAuthenticated}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-foreground transition hover:bg-white/[0.08] disabled:opacity-50"
-                  >
-                    <Square className="h-4 w-4" />
-                    Parar
-                  </button>
-                  <button
-                    onClick={clearResults}
-                    disabled={isScanning || !isAuthenticated}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-foreground transition hover:bg-white/[0.08] disabled:opacity-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Limpar
-                  </button>
-                  <button
-                    onClick={handleExport}
-                    disabled={isScanning || results.length === 0 || !isAuthenticated}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-foreground transition hover:bg-white/[0.08] disabled:opacity-50"
-                  >
-                    <Download className="h-4 w-4" />
-                    Exportar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="panel-card p-6">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Telemetria</p>
-              <h2 className="mt-2 text-2xl font-semibold text-foreground">Visão rápida</h2>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Status</p>
-                  <p className="mt-2 text-sm font-medium leading-6 text-foreground">{statusMessage}</p>
-                </div>
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Créditos API</p>
-                  <p className="mt-2 text-3xl font-semibold text-foreground">{creditsLoading ? '...' : credits ?? '--'}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="panel-card p-6">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Resumo da execução</p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Verificados</p>
-                  <p className="mt-2 text-3xl font-semibold text-foreground">{stats.checked}</p>
-                </div>
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Reportados</p>
-                  <p className="mt-2 text-3xl font-semibold text-destructive">{stats.reported}</p>
-                </div>
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Limpos</p>
-                  <p className="mt-2 text-3xl font-semibold text-emerald-400">{stats.clean}</p>
-                </div>
-                <div className="panel-muted p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Erros</p>
-                  <p className="mt-2 text-3xl font-semibold text-amber-300">{stats.errors}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="panel-card overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Resultados operacionais</p>
-              <h2 className="mt-2 text-2xl font-semibold text-foreground">IPs analisados</h2>
+              <div className="text-xs text-muted-foreground">Sessão ativa</div>
+              <div className="text-sm font-medium text-foreground">Usuário autenticado</div>
             </div>
-            <span className="dashboard-badge">{results.length} registro(s)</span>
+          </div>
+          <div className="text-sm text-foreground">{displayName}</div>
+          <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-secondary">
+            <LogOut className="h-3.5 w-3.5" /> Sair
+          </button>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-6 text-sm">
+          <div>
+            <span className="text-muted-foreground">Créditos</span>
+            <span className="ml-2 font-mono font-medium text-foreground">{creditsLoading ? '...' : credits ?? '--'}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Status</span>
+            <span className="ml-2 font-medium text-primary">Painel liberado</span>
+          </div>
+        </div>
+      </header>
+
+      {/* Scanner Config */}
+      <section className="panel-card p-6">
+        <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Consulta operacional</div>
+        <h2 className="text-lg font-bold text-foreground">Configuração da Consulta</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Scanner /24 autenticado</p>
+
+        <div className="mt-4 space-y-4">
+          <div>
+            <label className="mb-1 block text-sm text-muted-foreground">Selecione um dos IPs pré-definidos para verificação de bloco /24</label>
+            <select
+              value={selectedIp}
+              onChange={(e) => setSelectedIp(e.target.value)}
+              disabled={isScanning || !isAuthenticated}
+              className="h-12 w-full rounded-2xl border border-border bg-secondary/30 px-4 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+            >
+              <option value="">-- Selecione um IP --</option>
+              {PREDEFINED_IPS.map(ip => (
+                <option key={ip} value={ip}>{ip}/24</option>
+              ))}
+            </select>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[960px] text-sm">
-              <thead className="bg-white/[0.03]">
-                <tr className="border-b border-white/10">
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">IP</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Reports</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Score</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">País</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">ASN</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Website</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Links</th>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={startScan}
+              disabled={isScanning || !selectedIp || !isAuthenticated}
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:brightness-110 disabled:opacity-40"
+            >
+              {isScanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              Iniciar
+            </button>
+            <button
+              onClick={stopScan}
+              disabled={!isScanning}
+              className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition hover:bg-secondary disabled:opacity-40"
+            >
+              <Square className="h-4 w-4" /> Parar
+            </button>
+            <button
+              onClick={clearResults}
+              disabled={isScanning}
+              className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition hover:bg-secondary disabled:opacity-40"
+            >
+              <Trash2 className="h-4 w-4" /> Limpar
+            </button>
+            <button
+              onClick={handleExport}
+              disabled={results.length === 0}
+              className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition hover:bg-secondary disabled:opacity-40"
+            >
+              <Download className="h-4 w-4" /> Exportar
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Telemetry */}
+      <section className="panel-card p-6">
+        <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Telemetria</div>
+        <h2 className="text-lg font-bold text-foreground">Visão rápida</h2>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="panel-muted p-4">
+            <div className="text-xs text-muted-foreground">Status</div>
+            <div className="mt-1 text-sm font-medium text-foreground">{statusMessage}</div>
+          </div>
+          <div className="panel-muted p-4">
+            <div className="text-xs text-muted-foreground">Créditos API</div>
+            <div className="mt-1 text-sm font-mono font-medium text-foreground">{creditsLoading ? '...' : credits ?? '--'}</div>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="mb-2 text-xs text-muted-foreground">Resumo da execução</div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="panel-muted p-3 text-center">
+              <div className="text-xs text-muted-foreground">Verificados</div>
+              <div className="mt-1 text-xl font-bold text-foreground">{stats.checked}</div>
+            </div>
+            <div className="panel-muted p-3 text-center">
+              <div className="text-xs text-muted-foreground">Reportados</div>
+              <div className="mt-1 text-xl font-bold text-destructive">{stats.reported}</div>
+            </div>
+            <div className="panel-muted p-3 text-center">
+              <div className="text-xs text-muted-foreground">Limpos</div>
+              <div className="mt-1 text-xl font-bold text-primary">{stats.clean}</div>
+            </div>
+            <div className="panel-muted p-3 text-center">
+              <div className="text-xs text-muted-foreground">Erros</div>
+              <div className="mt-1 text-xl font-bold text-muted-foreground">{stats.errors}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Results Table */}
+      <section className="panel-card overflow-hidden">
+        <div className="border-b border-border p-6">
+          <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Resultados operacionais</div>
+          <h2 className="text-lg font-bold text-foreground">IPs analisados</h2>
+          <p className="text-sm text-muted-foreground">{results.length} registro(s)</p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <th className="px-4 py-3">IP</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Reports</th>
+                <th className="px-4 py-3">Score</th>
+                <th className="px-4 py-3">País</th>
+                <th className="px-4 py-3">ASN</th>
+                <th className="px-4 py-3">Website</th>
+                <th className="px-4 py-3">Links</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
+                    Nenhum resultado ainda. Selecione um bloco e inicie a verificação.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {results.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-16 text-center text-muted-foreground">
-                      Nenhum resultado ainda. Selecione um bloco e inicie a verificação.
+              ) : (
+                results.map((result, index) => (
+                  <tr key={index} className="border-b border-border/50 transition-colors hover:bg-secondary/20">
+                    <td className="px-4 py-3 font-mono text-xs">{result.ip}</td>
+                    <td className="px-4 py-3">
+                      {result.error ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-muted-foreground/30 bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                          <Activity className="h-3 w-3" /> Erro
+                        </span>
+                      ) : result.reported ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-xs text-destructive">
+                          <Shield className="h-3 w-3" /> Reportado
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                          <ShieldCheck className="h-3 w-3" /> Limpo
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-xs">{result.totalReports ?? '—'}</td>
+                    <td className="px-4 py-3 text-xs">{result.abuseConfidenceScore ?? '—'}</td>
+                    <td className="px-4 py-3 text-xs">{result.countryCode || '—'}</td>
+                    <td className="px-4 py-3 text-xs">{getAsnText(result.asn)}</td>
+                    <td className="px-4 py-3 text-xs">
+                      {result.organizationWebsite ? (
+                        <a href={result.organizationWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                          {getWebsiteHostname(result.organizationWebsite)}
+                        </a>
+                      ) : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1">
+                        {result.asnLink && (
+                          <a href={result.asnLink} target="_blank" rel="noopener noreferrer" title="Ver IP no BGP HE" className="rounded p-1 text-muted-foreground transition hover:bg-secondary hover:text-foreground">
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                        {result.mxtoolboxLink && (
+                          <a href={result.mxtoolboxLink} target="_blank" rel="noopener noreferrer" title="Ver no MXToolbox" className="rounded p-1 text-muted-foreground transition hover:bg-secondary hover:text-foreground">
+                            <Search className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                        {result.generalBGPLink && (
+                          <a href={result.generalBGPLink} target="_blank" rel="noopener noreferrer" title="Ver informações adicionais" className="rounded p-1 text-muted-foreground transition hover:bg-secondary hover:text-foreground">
+                            <Activity className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  results.map((result, index) => (
-                    <tr key={`${result.ip}-${index}`} className="table-row-hover border-b border-white/5">
-                      <td className="px-6 py-4 font-mono text-foreground">{result.ip}</td>
-                      <td className="px-6 py-4">
-                        {result.error ? (
-                          <span className="inline-flex items-center rounded-full border border-destructive/20 bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
-                            Erro
-                          </span>
-                        ) : result.reported ? (
-                          <span className="inline-flex items-center rounded-full border border-destructive/20 bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
-                            Reportado
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-                            Limpo
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-foreground">{result.totalReports ?? '—'}</td>
-                      <td className="px-6 py-4 text-foreground">{result.abuseConfidenceScore ?? '—'}</td>
-                      <td className="px-6 py-4 text-foreground">{result.countryCode || '—'}</td>
-                      <td className="px-6 py-4 text-foreground">{getAsnText(result.asn)}</td>
-                      <td className="px-6 py-4 text-foreground">
-                        {result.organizationWebsite ? (
-                          <a
-                            href={result.organizationWebsite}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="transition-colors hover:text-primary"
-                          >
-                            {getWebsiteHostname(result.organizationWebsite)}
-                          </a>
-                        ) : '—'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          {result.asnLink && (
-                            <a
-                              href={result.asnLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="rounded-xl border border-white/10 bg-white/[0.03] p-2 transition hover:bg-white/[0.08]"
-                              title="Ver IP no BGP HE"
-                            >
-                              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                            </a>
-                          )}
-                          {result.mxtoolboxLink && (
-                            <a
-                              href={result.mxtoolboxLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="rounded-xl border border-white/10 bg-white/[0.03] p-2 transition hover:bg-white/[0.08]"
-                              title="Ver no MXToolbox"
-                            >
-                              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                            </a>
-                          )}
-                          {result.generalBGPLink && (
-                            <a
-                              href={result.generalBGPLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="rounded-xl border border-white/10 bg-white/[0.03] p-2 transition hover:bg-white/[0.08]"
-                              title="Ver informações adicionais"
-                            >
-                              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                            </a>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }
